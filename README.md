@@ -31,7 +31,7 @@ pnpx vite
 
 ## Build
 
-To build the project. built site will be inside the `/dist` directory:
+To build the project, built site will be inside the `/dist` directory:
 
 ```sh
 pnpx vite build
