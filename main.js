@@ -6,7 +6,7 @@ import KEYS from './api-keys.json';
 
 
 // camera vector
-camera.position.set(5, 5, 5);
+camera.position.set(10, 10, 10);
 camera.lookAt(0, 0, 0);
 
 // world axis
@@ -18,6 +18,7 @@ const geometry = new THREE.SphereGeometry(1);
 const material = new THREE.MeshBasicMaterial( { color: 0x2828B5 } ); 
 const earth = new THREE.Mesh( geometry, material );
 scene.add( earth );
+
 
 /* TODO:
 - fetch data from NASA APIs then map them
@@ -35,16 +36,35 @@ const NEOFeedURL = `https://api.nasa.gov/neo/rest/v1/feed?start_date=${startDate
 const NEOLookupURL = `https://api.nasa.gov/neo/rest/v1/neo/${asteroidID}?api_key=${KEYS.NEO}`;
 const NEOBrowseURL = `https://api.nasa.gov/neo/rest/v1/neo/browse/?api_key=${KEYS.NEO}`;
 
-
+/*
+const NEOGeometry = new THREE.SphereGeometry(1); 
+const NEObject = new THREE.Mesh( NEOGeometry);
+		NEObject.position.set(counter++,0 ,0)
+*/
 
 fetch(NEOFeedURL).then(resp => resp.json()).then(resp => {
 	//using the NEO feed API endpoint
 	//print to the console the name of the first object from today's list of NEO
-	console.log(resp.near_earth_objects[startDate][0].name)
+	console.log("There are " + resp.element_count + " near Earth objects!")
+	
+	const listOfNEOToday = resp.near_earth_objects[startDate]
 
-	//TODO:
-	// create an object in the scene for each element fetched from the API
-})
+	console.table(listOfNEOToday)
+
+	var counter = 1;
+	for(const spaceObject of listOfNEOToday){
+		console.log(spaceObject.name)
+		console.log(counter++)
+
+		const NEOGeometry = new THREE.SphereGeometry(1); 
+		const NEObject = new THREE.Mesh( NEOGeometry);
+		NEObject.position.set(counter,0 ,0)
+		scene.add(NEObject)
+		
+
+	}
+});
+
 
 
 function animate() {
