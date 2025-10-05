@@ -2,6 +2,9 @@ import * as THREE from 'three';
 import {scene, camera, renderer} from './src/scene.js';
 import axis from './src/axis.js';
 
+import KEYS from './api-keys.json';
+
+
 // camera vector
 camera.position.set(5, 5, 5);
 camera.lookAt(0, 0, 0);
