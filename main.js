@@ -68,34 +68,35 @@ fetch(NEOFeedURL).then(resp => resp.json()).then(resp => {
 		// radius of orbit
 		const radius = spaceObject.close_approach_data[0].miss_distance["kilometers"] / 2 / scalingFactor.radius
 		
-		const acceleration_et = 0;
-		const acceleration_en = 0;
-		const acceleration = Math.sqrt(Math.pow(acceleration_et, 2) + Math.pow(acceleration_en, 2));
 
-		const velocity_x = 0;
-		const velocity_z = 0;
-
-		let displacement_x = radius
-		let displacement_z = 0
- 
-		NEObject.position.set(displacement_x, 0, displacement_z)
-		asteroidList.push(NEObject);
+		asteroidList[listOfNEOToday.indexOf(spaceObject)] = {NEObject, velocity, radius};
 		scene.add(NEObject)
 	}
 });
 
 
 
-var x = 0;
+var theta = 0;
 
 function animate() {
-try {
+	try {
+		for(const spaceObject of asteroidList ){
+			const i = asteroidList.indexOf(spaceObject)
+			const object = asteroidList[i]["NEObject"]
+			const v = asteroidList[i]["velocity"]
+			const r = asteroidList[i]["radius"]
 
-	asteroidList[10].position.set(0, Math.sin(x++/20)*100000, 0)
 
-} catch (e){
-	console.error(e)
-}
+			let x = r * Math.cos(theta)
+			let z = r * Math.sin(theta)
+			theta = theta + 0.001
+			// define new position for each asteroid
+			asteroidList[i]["NEObject"].position.set(x, 0, z)
+		}
+	}
+	catch (e){
+		console.error(e)
+	}
 
   // render one frame
   renderer.render( scene, camera );
