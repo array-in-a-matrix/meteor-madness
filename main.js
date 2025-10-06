@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import {scene, camera, renderer} from './src/scene.js';
 import axis from './src/axis.js';
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
 
 import KEYS from './api-keys.json';
 
@@ -9,15 +11,21 @@ import KEYS from './api-keys.json';
 */
 
 // camera vector
-camera.position.set(50_000, 50_000, 50_000);
+camera.position.set(10_000, 10_000, 10_000);
 camera.lookAt(0, 0, 0);
 
 // world axis
 scene.add(axis.x, axis.y, axis.z);
 
+// scaling factor is needed cus objects are so small and far away its not really visable
+const scalingFactor = {
+ "earthRadius": 1/10,
+ "diameter": 10_000,
+ "radius": 1/1_000
+}
 
 // add earth
-const earthDiameter = 12_756; //kilometers
+const earthDiameter = 12_756 * scalingFactor.earthRadius; //kilometers
 const geometry = new THREE.SphereGeometry(earthDiameter); 
 const material = new THREE.MeshBasicMaterial( { color: 0x2828B5 } ); 
 const earth = new THREE.Mesh( geometry, material );
@@ -37,11 +45,6 @@ const NEOFeedURL = `https://api.nasa.gov/neo/rest/v1/feed?start_date=${startDate
 const NEOLookupURL = `https://api.nasa.gov/neo/rest/v1/neo/${asteroidID}?api_key=${KEYS.NEO}`;
 const NEOBrowseURL = `https://api.nasa.gov/neo/rest/v1/neo/browse/?api_key=${KEYS.NEO}`;
 
-// scaling factor is needed cus objects are so small and far away its not really visable
-const scalingFactor = {
- "diameter": 10_000,
- "radius": 1_000
-}
 
 let asteroidList = [];
 
@@ -66,7 +69,7 @@ fetch(NEOFeedURL).then(resp => resp.json()).then(resp => {
 		//asteroid's tangential velocity v_et, tangent to the direction of motion
 		const velocity = spaceObject.close_approach_data[0].relative_velocity["kilometers_per_hour"]
 		// radius of orbit
-		const radius = spaceObject.close_approach_data[0].miss_distance["kilometers"] / 2 / scalingFactor.radius
+		const radius = spaceObject.close_approach_data[0].miss_distance["kilometers"] / 2 * scalingFactor.radius
 		
 
 		asteroidList[listOfNEOToday.indexOf(spaceObject)] = {NEObject, velocity, radius};
@@ -76,7 +79,8 @@ fetch(NEOFeedURL).then(resp => resp.json()).then(resp => {
 
 
 
-var theta = 0;
+// define initial archlength, non-zero to avoid division by zero
+var s = 100;
 
 function animate() {
 	try {
@@ -85,11 +89,20 @@ function animate() {
 			const object = asteroidList[i]["NEObject"]
 			const v = asteroidList[i]["velocity"]
 			const r = asteroidList[i]["radius"]
-
-
+			
+			/* 
+			  v_t = r * dot{theta}
+			  r = theta * s
+			  v_t = theta * s * dot{theta}
+			  theta is constant, derivitive of theta is 1
+			  v_t = theta * s
+			  theta = v_t / s
+			*/
+			var theta = v / s
 			let x = r * Math.cos(theta)
 			let z = r * Math.sin(theta)
-			theta = theta + 0.001
+			s = s + 0.0001
+
 			// define new position for each asteroid
 			asteroidList[i]["NEObject"].position.set(x, 0, z)
 		}
