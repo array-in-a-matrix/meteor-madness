@@ -21,6 +21,15 @@ Inside the repo folder, install the JavaScript dependencies:
 pnpm install
 ```
 
+## Run
+
+Ensure the proper API keys are present. Copy the `api-keys-example.json` file and rename it `api-keys.json`.
+Then replace the default value with your acutal API key generated from [NASA's site](https://api.nasa.gov/). Currently, there is only one key needed. 
+
+```sh
+cp api-keys-example.json api-key.json
+```
+
 ## Development
 
 To run site in a development environment, run the following:
