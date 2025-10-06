@@ -32,15 +32,18 @@ const startDate = '2025-10-04';
 const endDate = '2025-10-11';
 const asteroidID = '3542519';
 
-//Asteroids - NeoWs
+// Asteroids - NeoWs
 const NEOFeedURL = `https://api.nasa.gov/neo/rest/v1/feed?start_date=${startDate}&end_date=${endDate}&api_key=${KEYS.NEO}`;
 const NEOLookupURL = `https://api.nasa.gov/neo/rest/v1/neo/${asteroidID}?api_key=${KEYS.NEO}`;
 const NEOBrowseURL = `https://api.nasa.gov/neo/rest/v1/neo/browse/?api_key=${KEYS.NEO}`;
 
+// scaling factor is needed cus objects are so small and far away its not really visable
 const scalingFactor = {
  "diameter": 10_000,
  "radius": 1_000
 }
+
+let asteroidList = [];
 
 fetch(NEOFeedURL).then(resp => resp.json()).then(resp => {
 	//using the NEO feed API endpoint
@@ -49,15 +52,12 @@ fetch(NEOFeedURL).then(resp => resp.json()).then(resp => {
 	
 	const listOfNEOToday = resp.near_earth_objects[startDate]
 
-	console.table(listOfNEOToday)
-
 	// for every NEO in today's list, make a corresponding object in the scene
 	for(const spaceObject of listOfNEOToday){
 		const estimated_diameter_avg = ( spaceObject.estimated_diameter["kilometers"]["estimated_diameter_max"] - spaceObject.estimated_diameter["kilometers"]["estimated_diameter_min"] ) / 2 * scalingFactor.diameter
-		console.log("d= " + estimated_diameter_avg)
 		const NEOGeometry = new THREE.SphereGeometry(estimated_diameter_avg);
 		const NEObject = new THREE.Mesh(NEOGeometry);
-
+		
 		/*
 		 We will be assuming a perfect circular orbit in the x-z plane
 		 centered at the Earth and with constant velocity.
@@ -75,21 +75,27 @@ fetch(NEOFeedURL).then(resp => resp.json()).then(resp => {
 		const velocity_x = 0;
 		const velocity_z = 0;
 
-		console.log(radius);
-		var displacement_x = radius;
-		var displacement_z = 0;
-
+		let displacement_x = radius
+		let displacement_z = 0
+ 
 		NEObject.position.set(displacement_x, 0, displacement_z)
+		asteroidList.push(NEObject);
 		scene.add(NEObject)
-		
 	}
 });
 
 
 
+var x = 0;
+
 function animate() {
+try {
 
+	asteroidList[10].position.set(0, Math.sin(x++/20)*100000, 0)
 
+} catch (e){
+	console.error(e)
+}
 
   // render one frame
   renderer.render( scene, camera );
@@ -97,3 +103,4 @@ function animate() {
 
 // render new scene every time the screen is refreshed, ~60Hz
 renderer.setAnimationLoop( animate );
+
